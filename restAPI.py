@@ -1,3 +1,4 @@
+from logging import exception
 from flask import Flask, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
@@ -18,9 +19,8 @@ base.prepare(db.engine, reflect=True)
 Posicao = base.classes.posicao
 
 #Function to return a Json formated response
-def to_json(objeto):
-    return {"seq": objeto.seq, "codigo": objeto.codigo, "DataHora": objeto.datahora, 
-            "Latitude": objeto.latitude, "Longitude": objeto.longitude}
+def to_json(object):
+    return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
 
 #Function to return formated responses
 def get_response(status, id_payload, payload, mesage=False):
@@ -30,17 +30,27 @@ def get_response(status, id_payload, payload, mesage=False):
     if(mesage):
         body['mesage'] = mesage
     
-    return Response(json.dumps(body, default=str), status=status)
+    try:
+        return Response(json.dumps(body, default=str), status=status)
+    except ValueError:
+        return "Error: ", ValueError
 
 #Insert
+def insert():
+    pass
 
 #SelectAll
-@app.route('/selectAll/', methods=['GET'])
-def selectAll():
+@app.route('/selectAll/<int:init_id>/<int:end_id>', methods=['GET'])
+def selectAll(init_id, end_id):
     position_objs = db.session.query(Posicao).all()
-    objs_json = [to_json(objeto) for objeto in position_objs]
+    objs_json = [to_json(object) for object in position_objs 
+                 if object.seq >= init_id and object.seq <= end_id]
+    
     return get_response(200, 'Posicao', objs_json, 'OK')
 
 #SelectOne
+def selectOne():
+    pass
+
 
 app.run()
