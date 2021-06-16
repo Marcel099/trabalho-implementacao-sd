@@ -20,8 +20,11 @@ Posicao = base.classes.posicao
 
 #Function to return a Json formated response
 def to_json(object):
-    return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
-
+    try:
+        return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
+    except OSError as err:
+        return "Erro {0}".format(err)
+    
 #Function to return formated responses
 def get_response(status, id_payload, payload, mesage=False):
     body = {}
@@ -32,8 +35,9 @@ def get_response(status, id_payload, payload, mesage=False):
     
     try:
         return Response(json.dumps(body, default=str), status=status)
-    except ValueError:
-        return "Error: ", ValueError
+    except OSError as err:
+        return "Error: {0}".format(err)
+
 
 #Insert
 def insert():
