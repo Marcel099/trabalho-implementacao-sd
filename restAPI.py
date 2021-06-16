@@ -1,4 +1,3 @@
-from logging import exception
 from flask import Flask, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
