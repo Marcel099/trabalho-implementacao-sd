@@ -1,7 +1,6 @@
 from flask import Flask, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
-from datetime import datetime
 import json
 
 #SQL_DB_USER = postgresql://user:password@localhost:port/database
@@ -27,6 +26,7 @@ def to_json(object):
         print(e)
         return get_response(400, '', {}, 'Bad Resquest')
     
+
 #Function returning formated responses
 def get_response(status, id_payload, payload, mesage=False):
     body = {}
@@ -42,14 +42,15 @@ def get_response(status, id_payload, payload, mesage=False):
         return get_response(400, '', {}, 'Bad Resquest')
 
 
+
 #Insert new location in the database
-@app.route('/insert-location', methods=['POST'])
-def insertLocation():
+@app.route('/posicao/insert', methods=['POST'])
+def insert_location():
     body = request.get_json()
     
     try:
-        new_object = Posicao(seq=body.seq, codigo=body.codigo, datahora=body.datahora,
-                            latitude=body.latitude, longitude=body.longitude)
+        new_object = Posicao(seq=body['seq'], codigo=body['codigo'], datahora=body['datahora'],
+                            latitude=body['latitude'], longitude=body['longitude'])
         db.session.add(new_object)
         db.session.commit()
         return get_response(200, 'Posicao', to_json(new_object), 'OK')
@@ -57,9 +58,21 @@ def insertLocation():
         print(e)
         return get_response(400, 'Posicao', {}, 'Bad Resquest')
 
+
+#Select the last position of a given vehicle
+@app.route('/posicao/select/<int:vehicleID>/', methods=['GET'])
+def select_location(vehicleID):
+    #Error: returning all the position where codigo == ID
+    #Will be fixed in the next update
+    position_objs = db.session.query(Posicao).filter(Posicao.codigo == vehicleID)
+    objs_json = [to_json(object) for object in position_objs]
+    
+    return get_response(200, 'Posicao', objs_json, 'OK')
+
+
 #Select a list of location between a given time
-@app.route('/selec-list-location/<int:vehicleID>/<int:init_time>/<int:end_time>/', methods=['GET'])
-def selectListLocation(vehicleID, init_time, end_time):
+@app.route('/posicao/select/<int:vehicleID>/<init_time>/<end_time>/', methods=['GET'])
+def select_list_location(vehicleID, init_time, end_time):
     #Timestamp broke, yet not possible to compare
     position_objs = db.session.query(Posicao).all()
     objs_json = [to_json(object) for object in position_objs 
@@ -68,15 +81,6 @@ def selectListLocation(vehicleID, init_time, end_time):
     
     return get_response(200, 'Posicao', objs_json, 'OK')
 
-#Select the last position of a given vehicle
-@app.route('/select-location/<int:vehicleID>/', methods=['GET'])
-def selectLocation(vehicleID):
-    #Error: returning all the position where codigo == ID
-    #Will be fixed in the next update
-    position_objs = db.session.query(Posicao).filter(Posicao.codigo == vehicleID)
-    objs_json = [to_json(object) for object in position_objs]
-    
-    return get_response(200, 'Posicao', objs_json, 'OK')
 
 
 app.run()
