@@ -13,18 +13,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQL_DB_URI
 
 #Create connection object
 db = SQLAlchemy(app)
-base = automap_base()
-base.prepare(db.engine, reflect=True)
-Posicao = base.classes.posicao
+base = automap_base()                   #Mapping the existent tables
+base.prepare(db.engine, reflect=True)   #Reflecting tables 
+Posicao = base.classes.posicao          #Creating object from the table 'Posicao'
 
-#Function to return a Json formated response
+
+#Function returning Json formated response
 def to_json(object):
     try:
         return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
     except OSError as err:
         return "Erro {0}".format(err)
     
-#Function to return formated responses
+#Function returning formated responses
 def get_response(status, id_payload, payload, mesage=False):
     body = {}
     body[id_payload] = payload
