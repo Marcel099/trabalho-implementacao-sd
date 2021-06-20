@@ -4,9 +4,9 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import { OperadorLogon } from './pages/OperadorLogon'
 
-import { EditVeiculo } from './pages/veiculo/EditVeiculo'
 import { ListVeiculo } from './pages/veiculo/ListVeiculo'
 import { NewVeiculo } from './pages/veiculo/NewVeiculo'
+import { EditVeiculo } from './pages/veiculo/EditVeiculo'
 
 import { NewLocalizacao } from './pages/localizacao/NewLocalizacao'
 
@@ -27,8 +27,8 @@ export function Routes(){
 
         <Route path="/localizacao/new" component={NewLocalizacao} />
 
-        <Route path="monitoramento_veiculos/ultima-localizacao-veiculos" component={UltimaLocalizacaoVeiculos} />
-        <Route path="monitoramento_veiculos/movimentacao" component={Movimentacao} />
+        <Route path="/monitoramento-veiculos/ultima-localizacao-veiculos" component={UltimaLocalizacaoVeiculos} />
+        <Route path="/monitoramento-veiculos/movimentacao" component={Movimentacao} />
 
         <Route path="/veiculo/:codigo_veiculo/simulador-deslocamento" component={Simulador} />
       </Switch>
