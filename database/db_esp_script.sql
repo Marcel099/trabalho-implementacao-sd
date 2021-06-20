@@ -30,6 +30,7 @@ insert into Posicao values (2, 4, '2021-03-05 12:42:46', -28.2385866, -52.456597
 insert into Posicao values (3, 5, '2021-05-10 07:15:30', -28.2277466, -52.3468827);
 insert into Posicao values (4, 2, '2020-08-05 14:27:15', -28.2900466, -52.4065576);
 insert into Posicao values (5, 1, '2021-04-17 16:08:13', -28.2923466, -52.4425617);
+insert into Posicao values (6, 2, '2020-08-05 14:30:45', -28.2900457, -52.4065570);
 
 select * from Veiculos;
 select * from Posicao;
