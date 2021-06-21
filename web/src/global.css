@@ -12,12 +12,12 @@
 }
 
 body {
-  font: 400 0.875rem Roboto, sans-serif;
-  background: #f0f0f5;
+  /* font: 400 0.875rem Roboto, sans-serif; */
+  /* background: #f0f0f5; */
   -webkit-font-smoothing: antialiased;
 }
 
-input, button, textarea {
+/* input, button, textarea {
   font-size: 400 1.125rem Roboto, sans-serif;
 }
 
@@ -53,4 +53,4 @@ form input {
 
 .button:hover {
   filter: brightness(90%);
-}
+} */
