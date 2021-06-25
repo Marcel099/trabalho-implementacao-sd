@@ -72,17 +72,14 @@ def select_location():
 
 
 #Select a list of location between a given time
-@app.route('/posicao/select/', methods=['GET'])
+@app.route('/posicao/select-list/', methods=['GET'])
 def select_list_location():
-    #Timestamp broke, yet not possible to compare
     args = request.args #Takes arguments: 'vehicleID', 'ftime', 'stime'
-    
-    print(args['ftime'], args['stime'])
     
     position_objs = db.session.query(Posicao).all()
     objs_json = [to_json(object) for object in position_objs 
-                 if str(object.seq) >= args['ftime'] and str(object.seq) <= args['stime'] 
-                 and object.codigo == args['vehicleID']]
+                 if str(object.datahora) >= args['ftime'] and str(object.datahora) <= args['stime'] 
+                 and str(object.codigo) == args['vehicleID']]
     
     return get_response(200, 'Posicao', objs_json, 'OK')
 
