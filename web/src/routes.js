@@ -16,6 +16,9 @@ import { MonitoramentoVeiculos } from './pages/MonitoramentoVeiculos'
 
 import { Simulador } from './pages/SimuladorDeslocamento'
 
+import { TesteCorsRest } from './pages/testes/CORS/REST'
+import { TesteCorsSoap } from './pages/testes/CORS/SOAP'
+
 export function Routes(){
 
   const renderInsideBaseLayout = PageComponent => (<LayoutBase><PageComponent /></LayoutBase>)
@@ -34,6 +37,9 @@ export function Routes(){
         <Route path="/monitoramento-veiculos" render={() => renderInsideBaseLayout(MonitoramentoVeiculos)} />
 
         <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />
+        
+        <Route path="/teste-cors-rest" render={() => renderInsideBaseLayout(TesteCorsRest)} />
+        <Route path="/teste-cors-soap" render={() => renderInsideBaseLayout(TesteCorsSoap)} />
       </Switch>
     </BrowserRouter>
   )
