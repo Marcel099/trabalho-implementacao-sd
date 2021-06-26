@@ -25,7 +25,7 @@ export function Routes(){
       <Switch>
         <Route path="/" exact render={() => renderInsideBaseLayout(OperadorLogon)} />
 
-        <Route path="/veiculo" render={() => renderInsideBaseLayout(ListVeiculo)} />
+        <Route path="/veiculo" exact render={() => renderInsideBaseLayout(ListVeiculo)} />
         <Route path="/veiculo/new" render={() => renderInsideBaseLayout(NewVeiculo)} />
         <Route path="/veiculo/:codigo_veiculo/edit" render={() => renderInsideBaseLayout(EditVeiculo)} />
 
@@ -33,7 +33,7 @@ export function Routes(){
 
         <Route path="/monitoramento-veiculos" render={() => renderInsideBaseLayout(MonitoramentoVeiculos)} />
 
-        <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />\
+        <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />
       </Switch>
     </BrowserRouter>
   )
