@@ -3,7 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
 from flask_cors import CORS
 import datetime as dt
+import logging
 import json
+
+#Logging management
+logger = logging.getLogger(__name__) #Creatting logger
+logger.setLevel(logging.INFO) 
+
+#Setting logger parameters
+formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
+
+file_handler = logging.FileHandler('INFO.log')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+
 
 #SQL_DB_USER = postgresql://user:password@localhost:port/database
 SQL_DB_URI = 'postgresql://postgres:Breaker#2030@localhost:5432/db_esp'
@@ -32,7 +46,7 @@ def to_json(object):
     try:
         return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
     except Exception as e:
-        print(e)
+        logger.error(e)
         return get_response(400, '', {}, 'Bad Resquest')
     
 
@@ -45,9 +59,10 @@ def get_response(status, payload_id, payload, mesage=False):
         body['mesage'] = mesage
     
     try:
+        logger.info(Response(json.dumps(body, default=str), status=status))
         return Response(json.dumps(body, default=str), status=status)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return get_response(400, '', {}, 'Bad Resquest')
 
 
@@ -57,17 +72,18 @@ def get_response(status, payload_id, payload, mesage=False):
 def insert_location():
     body = request.get_json() #Gets a Json formated input for body
     
-    datahora = dt.datetime.fromtimestamp(body['datahora'])
+    datahora = dt.datetime.strptime(body['datahora'], '%Y-%m-%d %H:%M:%S')
     
     try: #Tryies to insert the new position into the database
-        new_object = Posicao(codigo=body['codigo'], datahora=datahora,
-                            latitude=body['latitude'], longitude=body['longitude'])
+        new_object = Posicao(codigo=int(body['codigo']), datahora=datahora,
+                            latitude=float(body['latitude']), longitude=float(body['longitude']))
         db.session.add(new_object)
         db.session.commit()
-        return "200 Successfully inserted"
+        logger.info(Response(json.dumps('OK', default=str), status=201))
+        return Response(json.dumps('Successfully Inserted', default=str), status=201)
     except Exception as e: #Else, returns an error
-        print(e)
-        return "400 Bad Resquest"
+        logger.exception(e)
+        return Response(json.dumps('Bad Request', default=str), status=400)
 
 
 #Select the last position of a given vehicle
@@ -80,23 +96,27 @@ def select_location():
     objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
     
     try:
+        logger.info(get_response(200, 'Posicao', objs_json[-1], 'OK'))
         return get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
     except:
+        logger.info(get_response(200, 'Posicao', {}, 'OK'))
         return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
+
 
 #Select a list of location between a given time
 @app.route('/posicao/select-list', methods=['GET'])
 def select_list_location():
-    args = request.args #Takes arguments: 'vehicleID', 'ftime', 'stime'
+    args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
     
-    ftime = dt.datetime.fromtimestamp(int(args['ftime']))
-    stime = dt.datetime.fromtimestamp(int(args['stime']))
+    ftime = dt.datetime.fromtimestamp(int(args['firstTime']))
+    stime = dt.datetime.fromtimestamp(int(args['secTime']))
     
     position_objs = db.session.query(Posicao).all() #Querying the table Posicao
     objs_json = [to_json(object) for object in position_objs 
-                 if str(object.datahora) >= ftime and str(object.datahora) <= stime 
+                 if str(object.datahora) >= str(ftime) and str(object.datahora) <= str(stime) 
                  and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
     
+    logger.info(get_response(200, 'Posicao', objs_json, 'OK'))
     return get_response(200, 'Posicao', objs_json, 'OK')
 
 
