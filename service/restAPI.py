@@ -44,9 +44,10 @@ Posicao = base.classes.posicao          #Creating object from the table 'Posicao
 #Function returning Json formated response
 def to_json(object):
     try:
-        return {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
+        res = {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
+        return res
     except Exception as e:
-        logger.error(e)
+        print(e)
         return get_response(400, '', {}, 'Bad Resquest')
     
 
@@ -59,10 +60,10 @@ def get_response(status, payload_id, payload, mesage=False):
         body['mesage'] = mesage
     
     try:
-        logger.info(Response(json.dumps(body, default=str), status=status))
-        return Response(json.dumps(body, default=str), status=status)
+        res = Response(json.dumps(body, default=str), status=status)
+        return res
     except Exception as e:
-        logger.error(e)
+        print(e)
         return get_response(400, '', {}, 'Bad Resquest')
 
 
@@ -79,8 +80,10 @@ def insert_location():
                             latitude=float(body['latitude']), longitude=float(body['longitude']))
         db.session.add(new_object)
         db.session.commit()
-        logger.info(Response(json.dumps('OK', default=str), status=201))
-        return Response(json.dumps('Successfully Inserted', default=str), status=201)
+        
+        res = Response(json.dumps('OK', default=str), status=201)
+        logger.info(res)
+        return res
     except Exception as e: #Else, returns an error
         logger.exception(e)
         return Response(json.dumps('Bad Request', default=str), status=400)
@@ -96,11 +99,13 @@ def select_location():
     objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
     
     try:
-        logger.info(get_response(200, 'Posicao', objs_json[-1], 'OK'))
-        return get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
+        res = get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
+        logger.info(res)
+        return res 
     except:
-        logger.info(get_response(200, 'Posicao', {}, 'OK'))
-        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
+        res = (get_response(200, 'Posicao', {}, 'OK')) #In case of an empty list
+        logger.info(res)
+        return res
 
 
 #Select a list of location between a given time
@@ -108,16 +113,14 @@ def select_location():
 def select_list_location():
     args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
 
-    ftime = args['firstTime']
-    stime = args['secTime']
-
     position_objs = db.session.query(Posicao).all() #Querying the table Posicao
     objs_json = [to_json(object) for object in position_objs 
-                 if str(object.datahora) >= ftime and str(object.datahora) <= stime 
+                 if str(object.datahora) >= args['firstTime'] and str(object.datahora) <= args['secTime'] 
                  and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
     
-    logger.info(get_response(200, 'Posicao', objs_json, 'OK'))
-    return get_response(200, 'Posicao', objs_json, 'OK')
+    res = get_response(200, 'Posicao', objs_json, 'OK')
+    logger.info(res)
+    return res
 
 
 app.run()
