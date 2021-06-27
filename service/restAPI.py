@@ -107,13 +107,13 @@ def select_location():
 @app.route('/posicao/select-list', methods=['GET'])
 def select_list_location():
     args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
-    
-    ftime = dt.datetime.fromtimestamp(int(args['firstTime']))
-    stime = dt.datetime.fromtimestamp(int(args['secTime']))
-    
+
+    ftime = args['firstTime']
+    stime = args['secTime']
+
     position_objs = db.session.query(Posicao).all() #Querying the table Posicao
     objs_json = [to_json(object) for object in position_objs 
-                 if str(object.datahora) >= str(ftime) and str(object.datahora) <= str(stime) 
+                 if str(object.datahora) >= ftime and str(object.datahora) <= stime 
                  and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
     
     logger.info(get_response(200, 'Posicao', objs_json, 'OK'))
