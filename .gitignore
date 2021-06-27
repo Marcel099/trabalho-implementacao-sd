@@ -1,2 +1,4 @@
+**/.idea
+**/.vscode
 
-ws_rest.py
+**/*.lock

@@ -2,35 +2,38 @@ import React from 'react'
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
+import { LayoutBase } from './components/LayoutBase'
+
 import { OperadorLogon } from './pages/OperadorLogon'
 
-import { EditVeiculo } from './pages/veiculo/EditVeiculo'
 import { ListVeiculo } from './pages/veiculo/ListVeiculo'
 import { NewVeiculo } from './pages/veiculo/NewVeiculo'
+import { EditVeiculo } from './pages/veiculo/EditVeiculo'
 
 import { NewLocalizacao } from './pages/localizacao/NewLocalizacao'
 
-import { Movimentacao } from './pages/MonitoramentoVeiculos/Movimentacao'
-import { UltimaLocalizacaoVeiculos } from './pages/MonitoramentoVeiculos/UltimaLocalizacaoVeiculos'
+import { MonitoramentoVeiculos } from './pages/MonitoramentoVeiculos'
 
 import { Simulador } from './pages/SimuladorDeslocamento'
 
 export function Routes(){
+
+  const renderInsideBaseLayout = PageComponent => (<LayoutBase><PageComponent /></LayoutBase>)
+
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact component={OperadorLogon} />
+        <Route path="/" exact render={() => renderInsideBaseLayout(OperadorLogon)} />
 
-        <Route path="/veiculo" component={ListVeiculo} />
-        <Route path="/veiculo/new" component={NewVeiculo} />
-        <Route path="/veiculo/:codigo_veiculo/edit" component={EditVeiculo} />
+        <Route path="/veiculo" render={() => renderInsideBaseLayout(ListVeiculo)} />
+        <Route path="/veiculo/new" render={() => renderInsideBaseLayout(NewVeiculo)} />
+        <Route path="/veiculo/:codigo_veiculo/edit" render={() => renderInsideBaseLayout(EditVeiculo)} />
 
-        <Route path="/localizacao/new" component={NewLocalizacao} />
+        <Route path="/localizacao/new" render={() => renderInsideBaseLayout(NewLocalizacao)} />
 
-        <Route path="monitoramento_veiculos/ultima-localizacao-veiculos" component={UltimaLocalizacaoVeiculos} />
-        <Route path="monitoramento_veiculos/movimentacao" component={Movimentacao} />
+        <Route path="/monitoramento-veiculos" render={() => renderInsideBaseLayout(MonitoramentoVeiculos)} />
 
-        <Route path="/veiculo/:codigo_veiculo/simulador-deslocamento" component={Simulador} />
+        <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />\
       </Switch>
     </BrowserRouter>
   )
