@@ -1,6 +1,8 @@
 from flask import Flask, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
+from flask_cors import CORS
+import datetime as dt
 import json
 
 #SQL_DB_USER = postgresql://user:password@localhost:port/database
@@ -10,6 +12,13 @@ SQL_DB_URI = 'postgresql://postgres:Breaker#2030@localhost:5432/db_esp'
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = SQL_DB_URI
+
+CORS(app) #controlling CORS error
+cors = CORS(app, resources={
+    r'/*': {
+        'origins': '*'   #Grantting access to all origins
+    }
+})
 
 #Create connection object
 db = SQLAlchemy(app)
@@ -48,19 +57,21 @@ def get_response(status, payload_id, payload, mesage=False):
 def insert_location():
     body = request.get_json() #Gets a Json formated input for body
     
+    datahora = dt.datetime.fromtimestamp(body['datahora'])
+    
     try: #Tryies to insert the new position into the database
-        new_object = Posicao(seq=body['seq'], codigo=body['codigo'], datahora=body['datahora'],
+        new_object = Posicao(codigo=body['codigo'], datahora=datahora,
                             latitude=body['latitude'], longitude=body['longitude'])
         db.session.add(new_object)
         db.session.commit()
-        return get_response(200, 'Posicao', to_json(new_object), 'OK')
+        return "200 Successfully inserted"
     except Exception as e: #Else, returns an error
         print(e)
-        return get_response(400, 'Posicao', {}, 'Bad Resquest')
+        return "400 Bad Resquest"
 
 
 #Select the last position of a given vehicle
-@app.route('/posicao/select/', methods=['GET'])
+@app.route('/posicao/select', methods=['GET'])
 def select_location():
     args = request.args #Takes arguments: 'vehicleID'
     
@@ -68,18 +79,23 @@ def select_location():
     position_objs = db.session.query(Posicao).filter(Posicao.codigo == args['vehicleID'])
     objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
     
-    return get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
-
+    try:
+        return get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
+    except:
+        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
 
 #Select a list of location between a given time
-@app.route('/posicao/select-list/', methods=['GET'])
+@app.route('/posicao/select-list', methods=['GET'])
 def select_list_location():
     args = request.args #Takes arguments: 'vehicleID', 'ftime', 'stime'
     
-    position_objs = db.session.query(Posicao).all()
+    ftime = dt.datetime.fromtimestamp(int(args['ftime']))
+    stime = dt.datetime.fromtimestamp(int(args['stime']))
+    
+    position_objs = db.session.query(Posicao).all() #Querying the table Posicao
     objs_json = [to_json(object) for object in position_objs 
-                 if str(object.datahora) >= args['ftime'] and str(object.datahora) <= args['stime'] 
-                 and str(object.codigo) == args['vehicleID']]
+                 if str(object.datahora) >= ftime and str(object.datahora) <= stime 
+                 and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
     
     return get_response(200, 'Posicao', objs_json, 'OK')
 

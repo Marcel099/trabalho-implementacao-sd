@@ -1,8 +1,11 @@
-drop table if exists Posicao;
+CREATE SEQUENCE Veiculos_codigo_INC INCREMENT 1;
+CREATE SEQUENCE Posicao_seq_INC INCREMENT 1;
+
 drop table if exists Veiculos;
+drop table if exists Posicao;
 
 create table Veiculos(
-	codigo integer not null primary key,
+	codigo integer not null primary key default nextval('Veiculos_codigo_INC'::regclass),
 	Placa char(7) not null,
 	Tipo integer,
 	Descricao varchar(50),
@@ -11,7 +14,7 @@ create table Veiculos(
 );
 
 create table Posicao(
-	seq integer not null primary key,
+	seq integer not null primary key default nextval('Posicao_seq_INC'::regclass),
 	codigo integer not null,
 	DataHora timestamp,
 	Latitude float,
