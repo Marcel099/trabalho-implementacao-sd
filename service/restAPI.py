@@ -71,11 +71,11 @@ def get_response(status, payload_id, payload, mesage=False):
 #Insert new location in the database
 @app.route('/posicao/insert', methods=['POST'])
 def insert_location():
-    body = request.get_json() #Gets a Json formated input for body
-    
-    datahora = dt.datetime.strptime(body['datahora'], '%Y-%m-%d %H:%M:%S')
-    
     try: #Tryies to insert the new position into the database
+        body = request.get_json() #Gets a Json formated input for body
+        
+        datahora = dt.datetime.strptime(body['datahora'], '%Y-%m-%d %H:%M:%S')
+    
         new_object = Posicao(codigo=int(body['codigo']), datahora=datahora,
                             latitude=float(body['latitude']), longitude=float(body['longitude']))
         db.session.add(new_object)
@@ -92,35 +92,43 @@ def insert_location():
 #Select the last position of a given vehicle
 @app.route('/posicao/select', methods=['GET'])
 def select_location():
-    args = request.args #Takes arguments: 'vehicleID'
-    
-    #Creating a list with all matching IDs
-    position_objs = db.session.query(Posicao).filter(Posicao.codigo == args['vehicleID'])
-    objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
-    
     try:
+        args = request.args #Takes arguments: 'vehicleID'
+        
+        #Creating a list with all matching IDs
+        position_objs = db.session.query(Posicao).filter(Posicao.codigo == args['vehicleID'])
+        objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
+    
         res = get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
-        logger.info(res)
-        return res 
-    except:
-        res = (get_response(200, 'Posicao', {}, 'OK')) #In case of an empty list
+        
         logger.info(res)
         return res
+        
+    except Exception as e:
+        logger.info(e)
+        logger.info(get_response(200, 'Posicao', {}, 'OK'))
+        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
+        
 
 
 #Select a list of location between a given time
 @app.route('/posicao/select-list', methods=['GET'])
 def select_list_location():
-    args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
+    try:
+        args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
 
-    position_objs = db.session.query(Posicao).all() #Querying the table Posicao
-    objs_json = [to_json(object) for object in position_objs 
-                 if str(object.datahora) >= args['firstTime'] and str(object.datahora) <= args['secTime'] 
-                 and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
-    
-    res = get_response(200, 'Posicao', objs_json, 'OK')
-    logger.info(res)
-    return res
+        position_objs = db.session.query(Posicao).all() #Querying the table Posicao
+        objs_json = [to_json(object) for object in position_objs 
+                    if str(object.datahora) >= args['firstTime'] and str(object.datahora) <= args['secTime'] 
+                    and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
+        
+        res = get_response(200, 'Posicao', objs_json, 'OK')
+        logger.info(res)
+        return res
+    except Exception as e:
+        logger.error(e)
+        logger.info(get_response(200, 'Posicao', {}, 'OK'))
+        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
 
 
 app.run()
