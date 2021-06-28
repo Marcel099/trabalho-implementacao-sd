@@ -4,6 +4,7 @@ from spyne.server.wsgi import WsgiApplication
 from wsgiref.simple_server import make_server
 import xml.etree.ElementTree as ET
 import psycopg2
+import logging
 
 HOST='localhost'
 DATABASE='postgres'
@@ -34,8 +35,8 @@ def create_xml(res_list):
 
 class crudsoap(ServiceBase):
     @rpc(Unicode, Unicode, Unicode, Unicode, Unicode, _returns=Unicode)
-    def adiciona(self, placa, tipo=None, desc=None, vt=True, inst=None):
-        sql = 'INSERT INTO veiculos VALUES ({placa}, {tipo}, {desc}, {vt}, {inst})'
+    def adiciona(self, placa, tipo, desc, vt, inst):
+        sql = ("INSERT INTO veiculos(placa, tipo, descricao, visiveltodos, instituicao) VALUES (%s, %s ,%s, %s, %s)" % (placa, tipo, desc, vt, inst))
         
         cur = conn.cursor()
         cur.execute(sql)
@@ -45,7 +46,7 @@ class crudsoap(ServiceBase):
 
     @rpc(Unicode, _returns=Unicode)
     def altera(self, idveiculo):
-        sql = f'UPDATE veiculo SET %s=%s WHERE codigo = {idveiculo}'
+        sql = ('UPDATE veiculo SET %s=%s WHERE codigo = ' % idveiculo)
         
         cur = conn.cursor()
         cur.execute(sql)
