@@ -1,7 +1,8 @@
-from spyne import Application, rpc, ServiceBase, Unicode
+from spyne import Application, rpc, ServiceBase, Unicode, AnyXml
 from spyne.protocol.soap import Soap12
 from spyne.server.wsgi import WsgiApplication
 from wsgiref.simple_server import make_server
+import xml.etree.ElementTree as ET
 import psycopg2
 
 HOST='localhost'
@@ -11,52 +12,104 @@ PASSWORD='rafa'
 
 conn = psycopg2.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD)
 
-cur = conn.cursor()
+def create_xml(res_list):
+        # we make root element
+        usrconfig = ET.Element("usrconfig")
+  
+        # create sub element
+        usrconfig = ET.SubElement(usrconfig, "usrconfig")
+  
+        # insert list element into sub elements
+        for user in range(len(res_list)):
+  
+                usr = ET.SubElement(usrconfig, "usr")
+                usr.text = str(res_list[user])
+  
+        tree = ET.ElementTree(usrconfig)
+  
+        # write the tree into an XML file
+        tree.write("Output.xml", encoding ='utf-8', xml_declaration = True)
+        return tree
+
 
 class crudsoap(ServiceBase):
-    @rpc(_returns=Unicode)
-    def adiciona(self):
+    @rpc(Unicode, Unicode, Unicode, Unicode, Unicode, _returns=Unicode)
+    def adiciona(self, placa, tipo=None, desc=None, vt=True, inst=None):
+        sql = 'INSERT INTO veiculos VALUES ({placa}, {tipo}, {desc}, {vt}, {inst})'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        cur.close()
+        
         return ("funcao adiciona")
 
-    @rpc(_returns=Unicode)
-    def altera(self):
-        cur.execute('DELETE FROM veiculos WHERE codigo=', idveiculo)
-         res = cur.fetchone()
-         cur.close()
-         return res
+    @rpc(Unicode, _returns=Unicode)
+    def altera(self, idveiculo):
+        sql = f'UPDATE veiculo SET %s=%s WHERE codigo = {idveiculo}'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchone()
+        cur.close()
+        
+        return "deletado"
 
     @rpc(Unicode, _returns=Unicode)
     def excluir(self, idveiculo):
-        cur.execute('DELETE FROM veiculos WHERE codigo=', idveiculo)
-         res = cur.fetchone()
-         cur.close()
-         return res
+        sql = f'DELETE FROM veiculos WHERE codigo={idveiculo}'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        res_list = cur.fetchone()
+        cur.close()
+        
+        print(create_xml(res_list))
+        print(res_list)
+        return 'deletado'
 
     @rpc(Unicode, _returns=Unicode)
     def consulta(self, idveiculo):
-         cur.execute('SELECT * FROM veiculos WHERE codigo=',idveiculo)
-         res = cur.fetchone()
-         cur.close()
-         return res
+        sql = f'SELECT * FROM veiculos WHERE codigo={idveiculo}'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        res_list = cur.fetchone()
+        cur.close()
+        
+        print(create_xml(res_list))
+        print(res_list)
+        return "OK"
 
     @rpc(Unicode, _returns=Unicode)
     def listainstituicao(self, idinstituicao):
-        cur.execute('SELECT * FROM veiculos WHERE instituicao=',str(idinstituicao))
-         res = cur.fetchone()
-         cur.close()
-         return res
+        sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao}'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        res_list = cur.fetchall()
+        cur.close()
+        
+        print(create_xml(res_list))
+        print(res_list)
+        return "OK"
 
     @rpc(Unicode, Unicode, _returns=Unicode)
-    def listatipo(self, idveiculo, idinstituicao):
-        cur.execute('SELECT * FROM veiculos WHERE instituicao={} and codigo={}'.format(idinstituicao, idveiculo))
-         res = cur.fetchone()
-         cur.close()
-         return res
+    def listatipo(self, idinstituicao, tipoVeiculo):
+        sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao} and tipo={tipoVeiculo}'
+        
+        cur = conn.cursor()
+        cur.execute(sql)
+        res_list = cur.fetchall()
+        cur.close()
+        
+        print(create_xml(res_list))
+        print(res_list)
+        return "OK"
 
 
 application = Application([crudsoap], 'spyne.examples.hello.soap',
                           in_protocol=Soap12(validator='lxml'),
-                          out_protocol=Soap12())
+                          out_protocol=Soap12(validator='lxml'))
 
 wsgi_application = WsgiApplication(application)
 
