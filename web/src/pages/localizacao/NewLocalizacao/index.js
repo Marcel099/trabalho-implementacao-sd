@@ -9,8 +9,7 @@ import {
 
 import { useVehicle } from '../../../hooks/useVehicle';
 
-//import { api_rest } from '../../../services/api_rest';
-//import { api_soap } from '../../../services/api_soap';
+import { api_rest } from '../../../services/api_rest';
 
 export function NewLocalizacao() {
   const {
@@ -26,15 +25,21 @@ export function NewLocalizacao() {
   async function handleSubmit(event){
     event.preventDefault()
 
-    const data= {
-      latitude: latitude,
-      longitude: longitude,
-      idVeiculo: idVeiculo,
-    }
+    try {
+      const dateFormatted = String( new Date().getTime() ).slice(0, -3)
 
-    console.log(data)
-    
-    //await api_rest.post('/posicao/insert', data)
+      await api_rest.post('/posicao/insert', {
+        codigo: idVeiculo,
+        datahora: dateFormatted,
+        latitude: latitude,
+        longitude: longitude,
+      })
+
+      alert('Nova localização cadastrada com sucesso')
+    } catch(e) {
+      console.erro(e)
+      alert('Ocorreu um erro ao salvar')
+    }
   }
 
   return (
@@ -80,7 +85,7 @@ export function NewLocalizacao() {
           variant="contained" 
           color="primary"
         >
-          Atualizar Localização
+          Cadastrar Localização
         </Button>
       </form>
     </div>
