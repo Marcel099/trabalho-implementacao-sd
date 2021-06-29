@@ -77,7 +77,7 @@ export function UltimaLocalizacaoVeiculos() {
     async function handleBuscaPosicoes() {
       const vehiclesFiltered = filterVehicles(vehicles)
       
-      const positionsReceived = await Promise.all(
+      Promise.all(
         vehiclesFiltered.map( requestPosition )
       )
         .then((positionsReceived) => {
@@ -104,63 +104,65 @@ export function UltimaLocalizacaoVeiculos() {
   return (
     <div id="container-localizacao-veiculos">
       <h2>Movimentação de um veículo em um período</h2>
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="localizacao-idintituicao">Instituição</InputLabel>
-        <Select
-          native
-          value={idInstitution}
-          onChange={event => setIdInstitution( Number(event.target.value) )}
-          inputProps={{
-            name: 'instituicao',
-            id: 'localizacao-idintituicao',
-          }}
-        >
-          <option aria-label="Nada" value="" />
-          {vehiclesInstitutions.map((vehicleInstitution) => (
-            <option value={vehicleInstitution.id} key={vehicleInstitution.id}>
-              {vehicleInstitution.nome}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="localizacao-tipo-veiculo">Tipo</InputLabel>
-        <Select
-          native
-          value={vehicleType}
-          onChange={event => setVehicleType( Number(event.target.value) )}
-          inputProps={{
-            name: 'tipo',
-            id: 'localizacao-tipo-veiculo',
-          }}
-        >
-          <option aria-label="Nada" value="" />
-          {vehiclesTypes.map((vehicleType) => (
-            <option value={vehicleType.id} key={vehicleType.id}>
-              {vehicleType.nome}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="localizacao-idveiculo">Veículo</InputLabel>
-        <Select
-          native
-          value={idVehicle}
-          onChange={event => setIdVehicle( Number(event.target.value) )}
-          inputProps={{
-            name: 'idveiculo',
-            id: 'localizacao-idveiculo',
-          }}
-        >
-          <option aria-label="Nada" value="" />
-          {vehicles.map((vehicle) => (
-            <option value={vehicle.codigo} key={vehicle.codigo}>
-              {vehicle.descricao}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
+      <form onSubmit={e => e.preventDefault()}>
+        <FormControl className={classes.formControl}>
+          <InputLabel htmlFor="localizacao-idintituicao">Instituição</InputLabel>
+          <Select
+            native
+            value={idInstitution}
+            onChange={event => setIdInstitution( Number(event.target.value) )}
+            inputProps={{
+              name: 'instituicao',
+              id: 'localizacao-idintituicao',
+            }}
+          >
+            <option aria-label="Nada" value="" />
+            {vehiclesInstitutions.map((vehicleInstitution) => (
+              <option value={vehicleInstitution.id} key={vehicleInstitution.id}>
+                {vehicleInstitution.nome}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <InputLabel htmlFor="localizacao-tipo-veiculo">Tipo</InputLabel>
+          <Select
+            native
+            value={vehicleType}
+            onChange={event => setVehicleType( Number(event.target.value) )}
+            inputProps={{
+              name: 'tipo',
+              id: 'localizacao-tipo-veiculo',
+            }}
+          >
+            <option aria-label="Nada" value="" />
+            {vehiclesTypes.map((vehicleType) => (
+              <option value={vehicleType.id} key={vehicleType.id}>
+                {vehicleType.nome}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <InputLabel htmlFor="localizacao-idveiculo">Veículo</InputLabel>
+          <Select
+            native
+            value={idVehicle}
+            onChange={event => setIdVehicle( Number(event.target.value) )}
+            inputProps={{
+              name: 'idveiculo',
+              id: 'localizacao-idveiculo',
+            }}
+          >
+            <option aria-label="Nada" value="" />
+            {vehicles.map((vehicle) => (
+              <option value={vehicle.codigo} key={vehicle.codigo}>
+                {vehicle.descricao}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+      </form>
       
       <Map center={initialPosition} zoom={15}>
         <TileLayer
