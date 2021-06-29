@@ -70,10 +70,10 @@ export function MonitoramentoVeiculos() {
           </Tabs>
         </AppBar>
         <TabPanel value={activeTab} index={0}>
-          <Movimentacao />
+          <UltimaLocalizacaoVeiculos />
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
-          <UltimaLocalizacaoVeiculos />
+          <Movimentacao />
         </TabPanel>
       </div>
     </>
