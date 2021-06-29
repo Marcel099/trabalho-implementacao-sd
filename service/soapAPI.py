@@ -2,9 +2,20 @@ from spyne import Application, rpc, ServiceBase, Unicode, Boolean, Integer, Comp
 from spyne.protocol.soap import Soap12
 from spyne.server.wsgi import WsgiApplication
 from wsgiref.simple_server import make_server
-# import xml.etree.ElementTree as ET
 import psycopg2
 import logging
+
+#ctx.transport.resp_headers['Access-Control-Allow-Origin'] = '*'
+
+class CorsService(ServiceBase):
+    origin = '*'
+
+def _on_method_return_object(ctx):
+    ctx.transport.resp_headers['Access-Control-Allow-Origin'] = \
+                                              ctx.descriptor.service_class.origin
+
+CorsService.event_manager.add_listener('method_return_object', 
+                                                        _on_method_return_object)
 
 HOST='localhost'
 DATABASE='postgres'
@@ -17,6 +28,14 @@ PASSWORD='rafa'
 
 conn = psycopg2.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD)
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s:%(name)s:%(message)s")
+file_handler = logging.FileHandler('soap_INFO.log')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+
 class Vehicle(ComplexModel):
     codigo = Integer
     placa = Unicode
@@ -24,25 +43,6 @@ class Vehicle(ComplexModel):
     descricao = Unicode
     visiveltodos = Boolean
     instituicao = Integer
-
-# def create_xml(res_list):
-#         # we make root element
-#         usrconfig = ET.Element("usrconfig")
-#
-#         # create sub element
-#         usrconfig = ET.SubElement(usrconfig, "usrconfig")
-#
-#         # insert list element into sub elements
-#         for user in range(len(res_list)):
-#
-#                 usr = ET.SubElement(usrconfig, "usr")
-#                 usr.text = str(res_list[user])
-#
-#         tree = ET.ElementTree(usrconfig)
-#
-#         # write the tree into an XML file
-#         tree.write("Output.xml", encoding ='utf-8', xml_declaration = True)
-#         return tree
 
 def convertVehicleListToVehicleObject(vehicle_list):
     return Vehicle(
@@ -55,95 +55,119 @@ def convertVehicleListToVehicleObject(vehicle_list):
     )
 
 class crudsoap(ServiceBase):
-    @rpc(Unicode, Integer, Unicode, Boolean, Integer, _returns=Unicode)
+    @rpc(Unicode, Integer, Unicode, Boolean, Integer, _returns=Boolean)
     def adiciona(self, placa, tipo, desc, vt, inst):
-        sql = f"INSERT INTO veiculos(placa, tipo, descricao, visiveltodos, instituicao) VALUES " +\
-              f"('{placa}', {tipo} ,'{desc}', {vt}, {inst})"
+        try:
+            sql = f"INSERT INTO veiculos(placa, tipo, descricao, visiveltodos, instituicao) VALUES " +\
+                f"('{placa}', {tipo} ,'{desc}', {vt}, {inst})"
 
-        cur = conn.cursor()
-        cur.execute(sql)
-        cur.close()
+            cur = conn.cursor()
+            cur.execute(sql)
+            cur.close()
 
-        conn.commit()
+            conn.commit()
 
-        
-        return "funcao adiciona"
+            logger.info(conn.commit())
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
 
-    @rpc(Integer, Unicode, Integer, Unicode, Boolean, Integer, _returns=Unicode)
+    @rpc(Integer, Unicode, Integer, Unicode, Boolean, Integer, _returns=Boolean)
     def altera(self, idveiculo, placa, tipo, desc, vt, inst):
-      
-        sql = f"UPDATE veiculos " +\
-              f"SET placa = \'{placa}\', " +\
-              f"tipo = {tipo}, " +\
-              f"descricao = \'{desc}\', " +\
-              f"visiveltodos = {vt}, " +\
-              f"instituicao = {inst} " +\
-              f"WHERE codigo = {idveiculo}"
+        try:
+            sql = f"UPDATE veiculos " +\
+                f"SET placa = \'{placa}\', " +\
+                f"tipo = {tipo}, " +\
+                f"descricao = \'{desc}\', " +\
+                f"visiveltodos = {vt}, " +\
+                f"instituicao = {inst} " +\
+                f"WHERE codigo = {idveiculo}"
 
-        cur = conn.cursor()
-        cur.execute(sql)
-        # cur.fetchone()  # res =
-        cur.close()
+            cur = conn.cursor()
+            cur.execute(sql)
+            cur.close()
 
-        conn.commit()
-        
-        return "alterado"
+            conn.commit()
+            
+            logger.info(conn.commit())
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
 
-    @rpc(Integer, _returns=Unicode)
+    @rpc(Integer, _returns=Boolean)
     def excluir(self, idveiculo):
-        sql = f'DELETE FROM veiculos WHERE codigo={idveiculo}'
-        
-        cur = conn.cursor()
-        cur.execute(sql)
-        # cur.fetchone()  # res =
-        cur.close()
+        try:
+            sql = f'DELETE FROM veiculos WHERE codigo={idveiculo}'
+            
+            cur = conn.cursor()
+            cur.execute(sql)
+            cur.close()
 
-        conn.commit()
-
-        # print(create_xml(res_list))
-        # print(res_list)
-        return 'deletado'
+            conn.commit()
+            
+            logger.info(conn.commit())
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
 
     @rpc(Integer, _returns=Vehicle)
     def consulta(self, idveiculo):
-        sql = f'SELECT * FROM veiculos WHERE codigo={idveiculo}'
-        
-        cur = conn.cursor()
-        cur.execute(sql)
-        res_list = cur.fetchone()
-        cur.close()
+        try:
+            sql = f'SELECT * FROM veiculos WHERE codigo={idveiculo}'
+            
+            cur = conn.cursor()
+            cur.execute(sql)
+            res_list = cur.fetchone()
+            cur.close()
 
-        veiculo = convertVehicleListToVehicleObject(res_list)
-        
-
-        return veiculo
+            veiculo = convertVehicleListToVehicleObject(res_list)
+            
+            logger.info(veiculo)
+            return veiculo
+        except Exception as e:
+            logger.error(e)
+            return {}
 
     @rpc(Integer, _returns=Array(Vehicle))
     def listainstituicao(self, idinstituicao):
-        sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao}'
-        
-        cur = conn.cursor()
-        cur.execute(sql)
-        res_list = cur.fetchall()
-        cur.close()
+        try:
+            sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao}'
+            
+            cur = conn.cursor()
+            cur.execute(sql)
+            res_list = cur.fetchall()
+            cur.close()
 
-        parsedVehicleList = map(lambda vehicle_list: convertVehicleListToVehicleObject(vehicle_list), res_list)
+            parsedVehicleList = map(lambda vehicle_list: convertVehicleListToVehicleObject(vehicle_list), res_list)
 
-        return parsedVehicleList
+            logger.info(parsedVehicleList)
+            return parsedVehicleList
+        except Exception as e:
+            logger.error(e)
+            return {}
+
 
     @rpc(Integer, Integer, _returns=Array(Vehicle))
     def listatipo(self, idinstituicao, tipoVeiculo):
-        sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao} and tipo={tipoVeiculo}'
-        
-        cur = conn.cursor()
-        cur.execute(sql)
-        res_list = cur.fetchall()
-        cur.close()
+        try:
+            sql = f'SELECT * FROM veiculos WHERE instituicao={idinstituicao} and tipo={tipoVeiculo}'
+            
+            cur = conn.cursor()
+            cur.execute(sql)
+            res_list = cur.fetchall()
+            cur.close()
 
+            parsedVehicleList = map(lambda vehicle_list: convertVehicleListToVehicleObject(vehicle_list), res_list)
+            
+            logger.info(parsedVehicleList)
+            return parsedVehicleList
+        except Exception as e:
+            logger.error(e)
+            return {}
 
-        parsedVehicleList = map(lambda vehicle_list: convertVehicleListToVehicleObject(vehicle_list), res_list)
-
-        return parsedVehicleList
 
 
 if __name__ == '__main__':
