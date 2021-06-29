@@ -106,8 +106,8 @@ def select_location():
         
     except Exception as e:
         logger.info(e)
-        logger.info(get_response(200, {}))
-        return get_response(200, {}) #In case of an empty list
+        logger.info(get_response(400, {}))
+        return get_response(400, {}) #In case of an empty list
         
 
 
@@ -127,8 +127,8 @@ def select_list_location():
         return res
     except Exception as e:
         logger.error(e)
-        logger.info(get_response(200, {}))
-        return get_response(200, {}) #In case of an empty list
+        logger.info(get_response(400, {}))
+        return get_response(400, {}) #In case of an empty list
 
 
 app.run()
