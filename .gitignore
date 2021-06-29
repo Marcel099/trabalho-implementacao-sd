@@ -2,3 +2,8 @@
 **/.vscode
 
 **/*.lock
+
+**/package.json
+**/node_modules
+
+**/*.log
