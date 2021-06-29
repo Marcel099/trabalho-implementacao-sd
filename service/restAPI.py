@@ -44,17 +44,17 @@ Posicao = base.classes.posicao          #Creating object from the table 'Posicao
 #Function returning Json formated response
 def to_json(object):
     try:
-        res = {"DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
+        res = {"seq": object.seq, "DataHora": object.datahora, "Latitude": object.latitude, "Longitude": object.longitude}
         return res
     except Exception as e:
-        print(e)
-        return get_response(400, '', {}, 'Bad Resquest')
+        logger.error(e)
+        return get_response(400, {}, 'Bad Resquest')
     
 
 #Function returning formated responses
-def get_response(status, payload_id, payload, mesage=False):
+def get_response(status, payload, mesage=False):
     body = {}
-    body[payload_id] = payload
+    body = payload
     
     if(mesage):
         body['mesage'] = mesage
@@ -63,8 +63,8 @@ def get_response(status, payload_id, payload, mesage=False):
         res = Response(json.dumps(body, default=str), status=status)
         return res
     except Exception as e:
-        print(e)
-        return get_response(400, '', {}, 'Bad Resquest')
+        logger.error(e)
+        return get_response(400, {}, 'Bad Resquest')
 
 
 
@@ -81,7 +81,7 @@ def insert_location():
         db.session.add(new_object)
         db.session.commit()
         
-        res = Response(json.dumps('OK', default=str), status=201)
+        res = Response(json.dumps(default=str), status=201)
         logger.info(res)
         return res
     except Exception as e: #Else, returns an error
@@ -99,15 +99,15 @@ def select_location():
         position_objs = db.session.query(Posicao).filter(Posicao.codigo == args['vehicleID'])
         objs_json = [to_json(object) for object in position_objs] #Converting to a Json fotmated object
     
-        res = get_response(200, 'Posicao', objs_json[-1], 'OK') #Returns the last position in the list
+        res = get_response(200, objs_json[-1]) #Returns the last position in the list
         
         logger.info(res)
         return res
         
     except Exception as e:
         logger.info(e)
-        logger.info(get_response(200, 'Posicao', {}, 'OK'))
-        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
+        logger.info(get_response(200, {}))
+        return get_response(200, {}) #In case of an empty list
         
 
 
@@ -122,13 +122,13 @@ def select_list_location():
                     if str(object.datahora) >= args['firstTime'] and str(object.datahora) <= args['secTime'] 
                     and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
         
-        res = get_response(200, 'Posicao', objs_json, 'OK')
+        res = get_response(200, objs_json)
         logger.info(res)
         return res
     except Exception as e:
         logger.error(e)
-        logger.info(get_response(200, 'Posicao', {}, 'OK'))
-        return get_response(200, 'Posicao', {}, 'OK') #In case of an empty list
+        logger.info(get_response(200, {}))
+        return get_response(200, {}) #In case of an empty list
 
 
 app.run()
