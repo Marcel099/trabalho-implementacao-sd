@@ -81,7 +81,7 @@ def insert_location():
         db.session.add(new_object)
         db.session.commit()
         
-        res = Response(json.dumps(default=str), status=201)
+        res = Response(json.dumps({}, default=str), status=201)
         logger.info(res)
         return res
     except Exception as e: #Else, returns an error
