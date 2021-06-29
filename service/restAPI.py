@@ -74,7 +74,7 @@ def insert_location():
     try: #Tryies to insert the new position into the database
         body = request.get_json() #Gets a Json formated input for body
         
-        datahora = dt.datetime.strptime(body['datahora'], '%Y-%m-%d %H:%M:%S')
+        datahora = dt.datetime.fromtimestamp(int(body['datahora'])).strftime("%Y-%m-%d %H:%M:%S")
     
         new_object = Posicao(codigo=int(body['codigo']), datahora=datahora,
                             latitude=float(body['latitude']), longitude=float(body['longitude']))
@@ -117,9 +117,12 @@ def select_list_location():
     try:
         args = request.args #Takes arguments: 'vehicleID', 'firstTime', 'secTime'
 
+        firstTime = dt.datetime.fromtimestamp(int(args['firstTime'])).strftime("%Y-%m-%d %H:%M:%S")
+        secTime = dt.datetime.fromtimestamp(int(args['secTime'])).strftime("%Y-%m-%d %H:%M:%S")
+
         position_objs = db.session.query(Posicao).all() #Querying the table Posicao
         objs_json = [to_json(object) for object in position_objs 
-                    if str(object.datahora) >= args['firstTime'] and str(object.datahora) <= args['secTime'] 
+                    if str(object.datahora) >= firstTime and str(object.datahora) <= secTime 
                     and str(object.codigo) == args['vehicleID']] #Converting to a Json fotmated object
         
         res = get_response(200, objs_json)
