@@ -103,7 +103,7 @@ export function UltimaLocalizacaoVeiculos() {
 
   return (
     <div id="container-localizacao-veiculos">
-      <h2>Movimentação de um veículo em um período</h2>
+      {/* <h2>Movimentação de um veículo em um período</h2> */}
       <form onSubmit={e => e.preventDefault()}>
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor="localizacao-idintituicao">Instituição</InputLabel>

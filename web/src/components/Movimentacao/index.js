@@ -41,9 +41,12 @@ export function Movimentacao() {
     vehicles,
   } = useVehicle()
 
+  const now = new Date()
+  const oneDayBefore = new Date( now.getTime() - 24 * 60 * 60 * 1000 )
+
   const [ idVehicle, setIdVehicle ] = useState(0)
-  const [ initialDate, setInitialDate ] = useState(new Date('2020-08-05T14:24:15'));
-  const [ finalDate, setFinalDate ] = useState(new Date('2020-08-05T14:31:59'));
+  const [ initialDate, setInitialDate ] = useState(oneDayBefore);
+  const [ finalDate, setFinalDate ] = useState(now);
 
   const [ initialPosition, setInitialPosition ] = useState([
     -28.25346343191986,
@@ -62,23 +65,17 @@ export function Movimentacao() {
   }, [])
 
   const handleInitialDateChange = (date) => {
-    setFinalDate(date);
+    setInitialDate(date);
   };
 
   const handleFinalDateChange = (date) => {
-    setInitialDate(date);
+    setFinalDate(date);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault()
     
     async function handleBuscaPosicoes() {
-      console.log({
-        idVehicle,
-        initialDate,
-        finalDate,
-      })
-
       const initialDateFormatted = String( initialDate.getTime() ).slice(0, -3)
       const finalDateFormatted = String( finalDate.getTime() ).slice(0, -3)
 
@@ -99,7 +96,7 @@ export function Movimentacao() {
 
   return (
     <div id="container-movimentacao">
-      <h2>Última Localização dos Veículos de uma Instituição</h2>
+      {/* <h2>Última Localização dos Veículos de uma Instituição</h2> */}
       <form onSubmit={handleSubmit}>
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor="movimentacao-idveiculo">Veículo</InputLabel>
@@ -177,7 +174,11 @@ export function Movimentacao() {
           />
           <br/>
 
-          <Button type="submit">
+          <Button
+            type="submit"
+            variant="contained" 
+            color="primary"
+          >
             Buscar
           </Button>
         </MuiPickersUtilsProvider> 
@@ -196,7 +197,13 @@ export function Movimentacao() {
         }) => (
           <Marker position={[Latitude, Longitude]} key={seq}>
             <Popup>
-              { `${DataHora}` }
+              {
+                Intl.DateTimeFormat('pt-BR', {
+                  year: 'numeric', month: 'numeric', day: 'numeric',
+                  hour: 'numeric', minute: 'numeric', second: 'numeric',
+                  hour12: false,
+                }).format(new Date(DataHora))
+              }
             </Popup>
           </Marker>
         )) }
