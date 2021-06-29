@@ -5,28 +5,14 @@ from wsgiref.simple_server import make_server
 import psycopg2
 import logging
 
-#ctx.transport.resp_headers['Access-Control-Allow-Origin'] = '*'
-
-class CorsService(ServiceBase):
-    origin = '*'
-
-def _on_method_return_object(ctx):
-    ctx.transport.resp_headers['Access-Control-Allow-Origin'] = \
-                                              ctx.descriptor.service_class.origin
-
-CorsService.event_manager.add_listener('method_return_object', 
-                                                        _on_method_return_object)
 
 HOST='localhost'
 DATABASE='postgres'
-# DATABASE='db_esp'
 USER='postgres'
 PASSWORD='rafa'
-# PASSWORD='Breaker#2030'
-
-# SQL_DB_URI = 'postgresql://postgres:Breaker#2030@localhost:5432/db_esp'
 
 conn = psycopg2.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD)
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -53,6 +39,7 @@ def convertVehicleListToVehicleObject(vehicle_list):
         visiveltodos=vehicle_list[4],
         instituicao=vehicle_list[5]
     )
+
 
 class crudsoap(ServiceBase):
     @rpc(Unicode, Integer, Unicode, Boolean, Integer, _returns=Boolean)
@@ -148,7 +135,6 @@ class crudsoap(ServiceBase):
         except Exception as e:
             logger.error(e)
             return {}
-
 
     @rpc(Integer, Integer, _returns=Array(Vehicle))
     def listatipo(self, idinstituicao, tipoVeiculo):
