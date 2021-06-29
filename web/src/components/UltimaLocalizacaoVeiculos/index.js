@@ -11,7 +11,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useVehicle } from '../../hooks/useVehicle';
 
 import { api_rest } from '../../services/api_rest'
-// import { api_soap } from '../../services/api_soap'
 
 import './styles.css'
 
@@ -83,6 +82,7 @@ export function UltimaLocalizacaoVeiculos() {
         .then((positionsReceived) => {
           const vehiclesWithPositions = positionsReceived.map((position, idx) => ({
             position: [position.Latitude, position.Longitude],
+            DateTime: position.DataHora,
             ...vehicles[idx]
           }))
           
@@ -103,7 +103,6 @@ export function UltimaLocalizacaoVeiculos() {
 
   return (
     <div id="container-localizacao-veiculos">
-      {/* <h2>Movimentação de um veículo em um período</h2> */}
       <form onSubmit={e => e.preventDefault()}>
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor="localizacao-idintituicao">Instituição</InputLabel>
@@ -173,10 +172,18 @@ export function UltimaLocalizacaoVeiculos() {
           codigo,
           descricao,
           position,
-        }, idx) => (
+          DateTime,
+        }) => (
           <Marker position={position} key={codigo}>
             <Popup>
-              { descricao }
+              <p>{ descricao }</p>
+              <p>{
+                Intl.DateTimeFormat('pt-BR', {
+                  year: 'numeric', month: 'numeric', day: 'numeric',
+                  hour: 'numeric', minute: 'numeric', second: 'numeric',
+                  hour12: false,
+                }).format(new Date(DateTime))
+              }</p>
             </Popup>
           </Marker>
         )) }

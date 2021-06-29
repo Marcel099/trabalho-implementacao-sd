@@ -5,3 +5,11 @@
   margin-top: 24px;
   margin-bottom: 24px;
 }
+
+#container-localizacao-veiculos .leaflet-container .leaflet-popup-content p:first-child {
+  margin-bottom: .5rem;
+}
+
+#container-localizacao-veiculos .leaflet-container .leaflet-popup-content p:last-child {
+  margin-top: 0;
+}

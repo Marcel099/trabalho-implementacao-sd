@@ -4,8 +4,7 @@ import { Map, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { 
-  // TextField,
+import {
   FormControl,
   Select,
   InputLabel,
@@ -54,8 +53,6 @@ export function Movimentacao() {
   ])
   const [ positions, setPositions ] = useState([])
 
-  // const [ choosenVehicle, setChoosenVehicle ] = useState(null)
-
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = position.coords;
@@ -87,7 +84,6 @@ export function Movimentacao() {
         }
       })
 
-      // setChoosenVehicle(vehicles.find(({ codigo }) => idVehicle.codigo === codigo))
       setPositions(positionsReceived.data)
     } 
 
@@ -96,7 +92,6 @@ export function Movimentacao() {
 
   return (
     <div id="container-movimentacao">
-      {/* <h2>Última Localização dos Veículos de uma Instituição</h2> */}
       <form onSubmit={handleSubmit}>
         <FormControl className={classes.formControl}>
           <InputLabel htmlFor="movimentacao-idveiculo">Veículo</InputLabel>
