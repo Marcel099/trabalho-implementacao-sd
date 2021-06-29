@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 #Setting logger parameters
 formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
 
-file_handler = logging.FileHandler('INFO.log')
+file_handler = logging.FileHandler('rest_INFO.log')
 file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
