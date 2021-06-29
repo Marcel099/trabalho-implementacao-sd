@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import 'date-fns';
 import { 
   TextField,
@@ -14,9 +14,12 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 
-export function Simulador() {
+import { useVehicle } from '../../hooks/useVehicle';
 
-  const [listaVeiculos, setListaVeiculos] = useState([])
+export function Simulador() {
+  const {
+    vehicles: listaVeiculos,
+  } = useVehicle()
 
   const [idVeiculo, setIdVeiculo] = useState(null)
 
@@ -30,41 +33,6 @@ export function Simulador() {
 
   const [selectedDate, setSelectedDate] = useState(new Date('2014-08-18T21:11:54'));
   
-    
-
-  useEffect(function(){
-    function buscarVeiculos(){
-    // let listaVeiculosRecebidos = await api_soap.get('listVeiculos')
-    
-    const listaVeiculosRecebidos=[
-        {
-          nome: 'Carro 1',
-          id: 1,
-        },
-        {
-          nome: 'Carro 2',
-          id: 2,
-        },
-        {
-          nome: 'Carro 3',
-          id: 3,
-        },
-        {
-          nome: 'Carro 4',
-          id: 4,
-        },
-        {
-          nome: 'Carro 5',
-          id: 5,
-        },
-      ]
-
-      setListaVeiculos(listaVeiculosRecebidos)
-    }
-
-    buscarVeiculos()
-    
-  }, [])
 
   async function handleSubmit(event){
     event.preventDefault()
@@ -104,8 +72,8 @@ export function Simulador() {
           >
             {listaVeiculos.map(function(veiculo){
               return(
-                <option key={veiculo.id} value={veiculo.id}>
-                  {veiculo.nome}
+                <option key={veiculo.codigo} value={veiculo.codigo}>
+                  {veiculo.descricao}
                 </option>
               )
             })}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { 
   TextField,
   Select,
@@ -7,41 +7,20 @@ import {
   Button,
 } from '@material-ui/core';
 
+import { useVehicle } from '../../../hooks/useVehicle';
+
 //import { api_rest } from '../../../services/api_rest';
 //import { api_soap } from '../../../services/api_soap';
 
 export function NewLocalizacao() {
-  
-  const [listaVeiculos, setListaVeiculos] = useState([])
+  const {
+    vehicles: listaVeiculos,
+  } = useVehicle()
 
   const [idVeiculo, setIdVeiculo] = useState(null)
 
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
-
-  
-
-  useEffect(function(){
-    function buscarVeiculos(){
-    //let listaVeiculosRecebidos = await api_soap.get('listVeiculos')
-    
-    const listaVeiculosRecebidos=[
-        {
-          nome: 'Ambulancia samu carro de policia',
-          id: 1,
-        },
-        {
-          nome: 'carro',
-          id: 2,
-        },
-      ]
-
-      setListaVeiculos(listaVeiculosRecebidos)
-    }
-
-    buscarVeiculos()
-    
-  }, [])
   
 
   async function handleSubmit(event){
@@ -74,8 +53,8 @@ export function NewLocalizacao() {
           >
             {listaVeiculos.map(function(veiculo){
               return(
-                <option key={veiculo.id} value={veiculo.id}>
-                  {veiculo.nome}
+                <option key={veiculo.codigo} value={veiculo.codigo}>
+                  {veiculo.descricao}
                 </option>
               )
             })}
