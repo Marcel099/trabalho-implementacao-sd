@@ -1,0 +1,6 @@
+#container-localizacao-veiculos .leaflet-container {
+  width: 782px;
+  height: 396px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}

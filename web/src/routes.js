@@ -2,6 +2,8 @@ import React from 'react'
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
+import { VehicleContextProvider } from './contexts/VehicleContext'
+
 import { LayoutBase } from './components/LayoutBase'
 
 import { OperadorLogon } from './pages/OperadorLogon'
@@ -25,22 +27,24 @@ export function Routes(){
 
   return (
     <BrowserRouter>
-      <Switch>
-        <Route path="/" exact render={() => renderInsideBaseLayout(OperadorLogon)} />
+      <VehicleContextProvider>
+        <Switch>
+          <Route path="/" exact render={() => renderInsideBaseLayout(OperadorLogon)} />
 
-        <Route path="/veiculo" exact render={() => renderInsideBaseLayout(ListVeiculo)} />
-        <Route path="/veiculo/new" render={() => renderInsideBaseLayout(NewVeiculo)} />
-        <Route path="/veiculo/:codigo_veiculo/edit" render={() => renderInsideBaseLayout(EditVeiculo)} />
+          <Route path="/veiculo" exact render={() => renderInsideBaseLayout(ListVeiculo)} />
+          <Route path="/veiculo/new" render={() => renderInsideBaseLayout(NewVeiculo)} />
+          <Route path="/veiculo/:codigo_veiculo/edit" render={() => renderInsideBaseLayout(EditVeiculo)} />
 
-        <Route path="/localizacao/new" render={() => renderInsideBaseLayout(NewLocalizacao)} />
+          <Route path="/localizacao/new" render={() => renderInsideBaseLayout(NewLocalizacao)} />
 
-        <Route path="/monitoramento-veiculos" render={() => renderInsideBaseLayout(MonitoramentoVeiculos)} />
+          <Route path="/monitoramento-veiculos" render={() => renderInsideBaseLayout(MonitoramentoVeiculos)} />
 
-        <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />
-        
-        <Route path="/teste-cors-rest" render={() => renderInsideBaseLayout(TesteCorsRest)} />
-        <Route path="/teste-cors-soap" render={() => renderInsideBaseLayout(TesteCorsSoap)} />
-      </Switch>
+          <Route path="/veiculo/simulador-deslocamento" render={() => renderInsideBaseLayout(Simulador)} />
+          
+          <Route path="/teste-cors-rest" render={() => renderInsideBaseLayout(TesteCorsRest)} />
+          <Route path="/teste-cors-soap" render={() => renderInsideBaseLayout(TesteCorsSoap)} />
+        </Switch>
+      </VehicleContextProvider>
     </BrowserRouter>
   )
 }
